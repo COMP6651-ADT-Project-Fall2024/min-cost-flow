@@ -1,3 +1,5 @@
+package graph;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,9 +81,5 @@ public class GenerateGraph {
         } catch (IOException e) {
             throw new IllegalStateException("Some issue when writing to file");
         }
-    }
-
-    public static void main(String[] args) {
-        generateSinkSourceGraph(10, 0.8, 5, 4);
     }
 }
