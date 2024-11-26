@@ -11,19 +11,19 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         int[][] unitCost = GraphReader.getUnitCostMatrix(graphFileName);
 
         int[][] flow = new int[cap.length][cap.length];
-        int[][] residualCap = findResidualCapacity(adjacencyMatrix, flow, cap);
+        int[][] residualCapacity = findResidualCapacity(adjacencyMatrix, flow, cap);
 
         int scalingFactor = getMaxCapacity(cap);
 
         while (scalingFactor >= 1) {
-            while (d > 0 && augmentedPathExists(s, t, scalingFactor, residualCap)) {
+            while (d > 0 && augmentedPathExists(s, t, scalingFactor, residualCapacity)) {
                 List<Integer> minCostPath = findMinimumCostPath(s, t, scalingFactor, unitCost, cap);
                 int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, cap, flow);
                 if (maxFlowThatCanBePushed > d) {
                     maxFlowThatCanBePushed = d;
                 }
                 augmentFlow(maxFlowThatCanBePushed, flow, minCostPath);
-                residualCap = findResidualCapacity(adjacencyMatrix, flow, cap);
+                residualCapacity = findResidualCapacity(adjacencyMatrix, flow, cap);
                 d = d - maxFlowThatCanBePushed;
             }
             scalingFactor = scalingFactor / 2;
@@ -61,20 +61,20 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return residualCap;
     }
 
-    boolean augmentedPathExists(int s, int t, int scalingFactor, int[][] residualCap) {
-        int[] visited = new int[residualCap.length];
-        return checkIfPathExists(s, t, scalingFactor, residualCap, visited);
+    boolean augmentedPathExists(int s, int t, int scalingFactor, int[][] residualCapacity) {
+        int[] visited = new int[residualCapacity.length];
+        return checkIfPathExists(s, t, scalingFactor, residualCapacity, visited);
     }
 
-    boolean checkIfPathExists(int s, int t, int scalingFactor, int[][] residualCap, int[] visited) {
+    boolean checkIfPathExists(int s, int t, int scalingFactor, int[][] residualCapacity, int[] visited) {
         if (s == t) {
             return true;
         }
 
         visited[s] = 1;
-        for (int i = 0; i < residualCap.length; i ++) {
-            if (visited[i] == 0 && residualCap[s][i] >= scalingFactor) {
-                checkIfPathExists(i, t, scalingFactor, residualCap, visited);
+        for (int i = 0; i < residualCapacity.length; i ++) {
+            if (visited[i] == 0 && residualCapacity[s][i] >= scalingFactor) {
+                checkIfPathExists(i, t, scalingFactor, residualCapacity, visited);
             }
         }
         visited[s] = 0;
