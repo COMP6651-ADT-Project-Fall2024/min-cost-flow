@@ -17,7 +17,7 @@ public class MinCostFlow {
             AlgoDriver driver = new AlgoDriver(0,9,5);
             String algoChoice = scanner.nextLine();
             if(algoChoice.equals("1")){
-                driver.pirmalDualDriver("graph1.txt");
+                driver.primalDualDriver("graph1.txt");
             }
         }
 

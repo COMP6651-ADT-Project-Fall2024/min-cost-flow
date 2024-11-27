@@ -18,10 +18,11 @@ public class AlgoDriver {
         graph.loadGraphFromFile(fileName, this.source, this.sink);
         return graph;
     }
-    public void pirmalDualDriver(String fileaName) throws IOException {
-        Graph graph = loadGraph(fileaName);
+    public void primalDualDriver(String fileName) throws IOException {
+        Graph graph = loadGraph(fileName);
         PrimalDual primalDual = new PrimalDual();
         primalDual.primalDualAlgo(graph, this.source, this.sink, this.demand);
 
     }
 }
+

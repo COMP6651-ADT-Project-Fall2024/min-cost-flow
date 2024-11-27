@@ -77,7 +77,7 @@ public class Graph {
 
 
 
-    private static class Edge{
+    public static class Edge{
         int source;
         int destination;
         int capacity;
