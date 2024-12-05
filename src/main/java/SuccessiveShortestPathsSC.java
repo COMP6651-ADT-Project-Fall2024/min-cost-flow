@@ -16,13 +16,13 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         int scalingFactor = getMaxCapacity(cap);
 
         while (scalingFactor >= 1) {
-            while (d > 0 && augmentedPathExists(s, t, scalingFactor, residualCapacity)) {
-                List<Integer> minCostPath = findMinimumCostPath(s, t, scalingFactor, unitCost, cap);
-                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, cap, flow);
+            while (d > 0 && augmentingPathExists(s, t, scalingFactor, residualCapacity)) {
+                List<Integer> minCostPath = findMinimumCostPath(s, t, scalingFactor, unitCost, residualCapacity);
+                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualCapacity);
                 if (maxFlowThatCanBePushed > d) {
                     maxFlowThatCanBePushed = d;
                 }
-                augmentFlow(maxFlowThatCanBePushed, flow, minCostPath);
+                augmentFlow(maxFlowThatCanBePushed, adjacencyMatrix, flow, minCostPath);
                 residualCapacity = findResidualCapacity(adjacencyMatrix, flow, cap);
                 d = d - maxFlowThatCanBePushed;
             }
@@ -38,7 +38,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
     int getMaxCapacity(int[][] cap) {
         int maxCapacity = 0;
         for (int i = 0; i < cap.length; i ++) {
-            for (int j = 0; j < cap[0].length; j ++) {
+            for (int j = 0; j < cap.length; j ++) {
                 maxCapacity = Math.max(maxCapacity, cap[i][j]);
             }
         }
@@ -47,13 +47,13 @@ public class SuccessiveShortestPathsSC implements Algorithm {
     }
 
     int[][] findResidualCapacity(int[][] adjacencyMatrix, int[][] flow, int[][] cap) {
-        int[][] residualCap = new int[adjacencyMatrix.length][adjacencyMatrix.length];
+        int[][] residualCap = new int[cap.length][cap.length];
         for (int i = 0; i < cap.length; i ++) {
             for (int j = 0; j < cap.length; j ++) {
                 if (adjacencyMatrix[i][j] == 1) {
                     residualCap[i][j] = cap[i][j] - flow[i][j];
-                } else {
-                    residualCap[i][j] = flow[i][j];
+                } else if (adjacencyMatrix[j][i] == 1) {
+                    residualCap[j][i] = flow[i][j];
                 }
             }
         }
@@ -61,7 +61,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return residualCap;
     }
 
-    boolean augmentedPathExists(int s, int t, int scalingFactor, int[][] residualCapacity) {
+    boolean augmentingPathExists(int s, int t, int scalingFactor, int[][] residualCapacity) {
         int[] visited = new int[residualCapacity.length];
         return checkIfPathExists(s, t, scalingFactor, residualCapacity, visited);
     }
@@ -77,59 +77,61 @@ public class SuccessiveShortestPathsSC implements Algorithm {
                 checkIfPathExists(i, t, scalingFactor, residualCapacity, visited);
             }
         }
-        visited[s] = 0;
 
         return false;
     }
 
-    List<Integer> findMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] cap) {
-        int[] visited = new int[cap.length];
-        int[] parent = new int[cap.length];
+    List<Integer> findMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity) {
+        int[] parent = new int[residualCapacity.length];
         Arrays.fill(parent, -1);
-        int minCost = getCostOfMinimumCostPath(s, t, scalingFactor, unitCost, cap, visited, parent);
+        getCostOfMinimumCostPath(s, t, scalingFactor, unitCost, residualCapacity, parent);
         List<Integer> minCostPath = new ArrayList<>();
 
         int k = t;
-        while (parent[k] != -1) {
-            minCostPath.add(k);
+        while (k != -1) {
+            minCostPath.add(0, k);
             k = parent[k];
         }
 
         return minCostPath;
     }
 
-    int getCostOfMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] cap, int[] visited, int[] parent) {
-        if (s == t) {
-            return 0;
-        }
-
-        visited[s] = 1;
-        int minCost = Integer.MAX_VALUE;
-        for (int i = 0; i < cap.length; i ++) {
-            if (visited[i] == 0 && cap[s][i] >= scalingFactor) {
-                int costOfPathFromI = unitCost[s][i] + getCostOfMinimumCostPath(i, t, scalingFactor, unitCost, cap, visited, parent);
-                if (minCost > costOfPathFromI) {
-                    minCost = costOfPathFromI;
-                    parent[i] = s;
+    void getCostOfMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity, int[] parent) {
+        int[] minCost = new int[unitCost.length];
+        Arrays.fill(minCost, Integer.MAX_VALUE);
+        minCost[s] = 0;
+        for (int i = 0; i < unitCost.length - 1; i ++) {
+            for (int j = 0; i < unitCost.length; i ++) {
+                for (int k = 0; k < minCost.length; k ++) {
+                    if (j != k && residualCapacity[j][k] >= scalingFactor && unitCost[j][k] != 0) {
+                        if (minCost[k] > minCost[j] + unitCost[j][k]) {
+                            minCost[k] = minCost[j] + unitCost[j][k];
+                            parent[k] = j;
+                        }
+                    }
                 }
             }
         }
-        visited[s] = 0;
-        return minCost;
     }
 
-    int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] cap, int[][] flow) {
+    int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualCapacity) {
         int maxFlowThatCanBePushed = Integer.MAX_VALUE;
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, cap[minCostPath.get(i)][minCostPath.get(i+1)] - flow[minCostPath.get(i)][minCostPath.get(i+1)]);
+            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[minCostPath.get(i)][minCostPath.get(i+1)]);
         }
 
         return maxFlowThatCanBePushed;
     }
 
-    void augmentFlow(int maxFlowThatCanBePushed, int[][] flow, List<Integer> minCostPath) {
+    void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> minCostPath) {
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            flow[minCostPath.get(i)][minCostPath.get(i+1)] = flow[minCostPath.get(i)][minCostPath.get(i+1)] + maxFlowThatCanBePushed;
+            int u = minCostPath.get(i);
+            int v = minCostPath.get(i+1);
+            if (adjacencyMatrix[u][v] == 1) {
+                flow[u][v] = flow[u][v] + maxFlowThatCanBePushed;
+            } else if (adjacencyMatrix[v][u] == 1) {
+                flow[u][v] = flow[u][v] - maxFlowThatCanBePushed;
+            }
         }
     }
 
@@ -153,5 +155,12 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         }
 
         return totalCost;
+    }
+
+    public static void main(String[] args) {
+        SuccessiveShortestPathsSC alg = new SuccessiveShortestPathsSC();
+        int[] a = alg.findMinCostFlowAndTotalCost("1", 1, 7, 3);
+        System.out.println(a[0]);
+        System.out.println(a[1]);
     }
 }
