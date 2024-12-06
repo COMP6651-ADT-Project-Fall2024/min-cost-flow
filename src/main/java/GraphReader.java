@@ -86,7 +86,7 @@ public class GraphReader {
     }
 
     public static int getMaxNode(List<String> edges) {
-        int maxNode = 0;
+        int maxNode = -1;
         for (String edge : edges) {
             String[] edgeAttributes = edge.split(" ");
             int fromNode = Integer.parseInt(edgeAttributes[0]);
