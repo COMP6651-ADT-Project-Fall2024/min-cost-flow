@@ -4,27 +4,31 @@ import java.util.List;
 
 public class CapacityScaling implements Algorithm {
 
+    private int n;
+
     @Override
     public int[] findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d) {
         int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(graphFileName);
         int[][] cap = GraphReader.getCapacityMatrix(graphFileName);
         int[][] unitCost = GraphReader.getUnitCostMatrix(graphFileName);
 
-        int[][] flow = new int[cap.length][cap.length];
-        int[][] residualCapacity = new int[cap.length][cap.length];
-        computeResidualCapacity(residualCapacity, adjacencyMatrix, flow, cap);
+        n = adjacencyMatrix.length;
+
+        int[][] flow = new int[n][n];
+        int[][] residualGraph = new int[n][n];
+        computeResidualCapacity(residualGraph, adjacencyMatrix, flow, cap);
 
         int scalingFactor = getMaxCapacity(cap);
 
         while (scalingFactor >= 1) {
-            while (d > 0 && augmentingPathExists(s, t, scalingFactor, residualCapacity)) {
-                List<Integer> minCostPath = findShortestPath(s, t, scalingFactor, residualCapacity);
-                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualCapacity);
+            while (d > 0 && augmentingPathExists(s, t, scalingFactor, residualGraph)) {
+                List<Integer> minCostPath = findShortestPath(s, t, scalingFactor, residualGraph);
+                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualGraph);
                 if (maxFlowThatCanBePushed > d) {
                     maxFlowThatCanBePushed = d;
                 }
                 augmentFlow(maxFlowThatCanBePushed, adjacencyMatrix, flow, minCostPath);
-                computeResidualCapacity(residualCapacity, adjacencyMatrix, flow, cap);
+                computeResidualCapacity(residualGraph, adjacencyMatrix, flow, cap);
                 d = d - maxFlowThatCanBePushed;
             }
             scalingFactor = scalingFactor / 2;
@@ -36,10 +40,10 @@ public class CapacityScaling implements Algorithm {
         return new int[] {getFlowValue(s, flow), findCost(flow, unitCost)};
     }
 
-    int getMaxCapacity(int[][] cap) {
+    private int getMaxCapacity(int[][] cap) {
         int maxCapacity = 0;
-        for (int i = 0; i < cap.length; i ++) {
-            for (int j = 0; j < cap.length; j ++) {
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < n; j ++) {
                 maxCapacity = Math.max(maxCapacity, cap[i][j]);
             }
         }
@@ -47,32 +51,32 @@ public class CapacityScaling implements Algorithm {
         return maxCapacity;
     }
 
-    void computeResidualCapacity(int[][] residualCapacity, int[][] adjacencyMatrix, int[][] flow, int[][] cap) {
-        for (int i = 0; i < cap.length; i ++) {
-            for (int j = 0; j < cap.length; j ++) {
+    private void computeResidualCapacity(int[][] residualGraph, int[][] adjacencyMatrix, int[][] flow, int[][] cap) {
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < n; j ++) {
                 if (adjacencyMatrix[i][j] == 1) {
-                    residualCapacity[i][j] = cap[i][j] - flow[i][j];
+                    residualGraph[i][j] = cap[i][j] - flow[i][j];
                 } else if (adjacencyMatrix[j][i] == 1) {
-                    residualCapacity[i][j] = flow[j][i];
+                    residualGraph[i][j] = flow[j][i];
                 }
             }
         }
     }
 
-    boolean augmentingPathExists(int s, int t, int scalingFactor, int[][] residualCapacity) {
-        int[] visited = new int[residualCapacity.length];
-        return checkIfPathExists(s, t, scalingFactor, residualCapacity, visited);
+    private boolean augmentingPathExists(int s, int t, int scalingFactor, int[][] residualGraph) {
+        int[] visited = new int[n];
+        return checkIfPathExists(s, t, scalingFactor, residualGraph, visited);
     }
 
-    boolean checkIfPathExists(int s, int t, int scalingFactor, int[][] residualCapacity, int[] visited) {
+    private boolean checkIfPathExists(int s, int t, int scalingFactor, int[][] residualGraph, int[] visited) {
         if (s == t) {
             return true;
         }
 
         visited[s] = 1;
-        for (int i = 0; i < residualCapacity.length; i ++) {
-            if (visited[i] == 0 && residualCapacity[s][i] >= scalingFactor) {
-                if (checkIfPathExists(i, t, scalingFactor, residualCapacity, visited)) {
+        for (int i = 0; i < n; i ++) {
+            if (residualGraph[s][i] >= scalingFactor && visited[i] == 0) {
+                if (checkIfPathExists(i, t, scalingFactor, residualGraph, visited)) {
                     return true;
                 }
             }
@@ -81,10 +85,10 @@ public class CapacityScaling implements Algorithm {
         return false;
     }
 
-    List<Integer> findShortestPath(int s, int t, int scalingFactor, int[][] residualCapacity) {
-        int[] parent = new int[residualCapacity.length];
+    List<Integer> findShortestPath(int s, int t, int scalingFactor, int[][] residualGraph) {
+        int[] parent = new int[n];
         Arrays.fill(parent, -1);
-        computeShortestPathsFromSource(s, scalingFactor, residualCapacity, parent);
+        computeShortestPathsFromSource(s, scalingFactor, residualGraph, parent);
         List<Integer> minCostPath = new ArrayList<>();
 
         int k = t;
@@ -96,15 +100,15 @@ public class CapacityScaling implements Algorithm {
         return minCostPath;
     }
 
-    void computeShortestPathsFromSource(int s, int scalingFactor, int[][] residualCapacity, int[] parent) {
-        int[] shortestDistance = new int[residualCapacity.length];
+    void computeShortestPathsFromSource(int s, int scalingFactor, int[][] residualGraph, int[] parent) {
+        int[] shortestDistance = new int[n];
         Arrays.fill(shortestDistance, Integer.MAX_VALUE);
         shortestDistance[s] = 0;
-        for (int i = 0; i < residualCapacity.length - 1; i ++) {
-            for (int j = 0; j < residualCapacity.length; j ++) {
-                for (int k = 0; k < residualCapacity.length; k ++) {
+        for (int i = 0; i < n - 1; i ++) {
+            for (int j = 0; j < n; j ++) {
+                for (int k = 0; k < n; k ++) {
                     if(j != k) {
-                        if (residualCapacity[j][k] >= scalingFactor) {
+                        if (residualGraph[j][k] >= scalingFactor) {
                             if (shortestDistance[k] > shortestDistance[j] + 1) {
                                 shortestDistance[k] = shortestDistance[j] + 1;
                                 parent[k] = j;
@@ -116,16 +120,17 @@ public class CapacityScaling implements Algorithm {
         }
     }
 
-    int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualCapacity) {
+    private int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualCapacity) {
         int maxFlowThatCanBePushed = Integer.MAX_VALUE;
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[minCostPath.get(i)][minCostPath.get(i+1)]);
+            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[minCostPath.get(i)][minCostPath.get(i + 1)]);
         }
 
+        // I think this needs to return infinite if minCostPath.size() <= 1. So I think it's okay
         return maxFlowThatCanBePushed;
     }
 
-    void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> minCostPath) {
+    private void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> minCostPath) {
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
             int u = minCostPath.get(i);
             int v = minCostPath.get(i + 1);
@@ -137,22 +142,30 @@ public class CapacityScaling implements Algorithm {
         }
     }
 
-    int getFlowValue(int s, int[][] flow) {
+    private int getFlowValue(int s, int[][] flow) {
         int flowValue = 0;
-        for (int i = 0; i < flow.length; i ++) {
-            if (flow[s][i] > 0) {
+        for (int i = 0; i < n; i ++) {
+            if (s != i && flow[s][i] > 0) {
                 flowValue = flowValue + flow[s][i];
+            }
+        }
+
+        for (int i = 0; i < n; i ++) {
+            if (s != i && flow[i][s] > 0) {
+                flowValue = flowValue - flow[i][s];
             }
         }
 
         return flowValue;
     }
 
-    int findCost(int[][] flow, int[][] unitCost) {
+    private int findCost(int[][] flow, int[][] unitCost) {
         int totalCost = 0;
-        for (int i = 0; i < flow.length; i ++) {
-            for (int j = 0; j < flow.length; j ++) {
-                totalCost = totalCost + unitCost[i][j] * flow[i][j];
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < n; j ++) {
+                if (i != j) {
+                    totalCost = totalCost + unitCost[i][j] * flow[i][j];
+                }
             }
         }
 
