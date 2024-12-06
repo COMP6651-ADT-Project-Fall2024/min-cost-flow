@@ -84,7 +84,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
     List<Integer> findMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity) {
         int[] parent = new int[residualCapacity.length];
         Arrays.fill(parent, -1);
-        getCostOfMinimumCostPath(s, t, scalingFactor, unitCost, residualCapacity, parent);
+        computeShortestPathsFromSource(s, t, scalingFactor, unitCost, residualCapacity, parent);
         List<Integer> minCostPath = new ArrayList<>();
 
         int k = t;
@@ -96,17 +96,19 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return minCostPath;
     }
 
-    void getCostOfMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity, int[] parent) {
+    void computeShortestPathsFromSource(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity, int[] parent) {
         int[] minCost = new int[unitCost.length];
         Arrays.fill(minCost, Integer.MAX_VALUE);
         minCost[s] = 0;
         for (int i = 0; i < unitCost.length - 1; i ++) {
-            for (int j = 0; i < unitCost.length; i ++) {
+            for (int j = 0; j < unitCost.length; j ++) {
                 for (int k = 0; k < minCost.length; k ++) {
-                    if (j != k && residualCapacity[j][k] >= scalingFactor && unitCost[j][k] != 0) {
-                        if (minCost[k] > minCost[j] + unitCost[j][k]) {
-                            minCost[k] = minCost[j] + unitCost[j][k];
-                            parent[k] = j;
+                    if(j != k && unitCost[j][k] != 0) {
+                        if (residualCapacity[j][k] >= scalingFactor) {
+                            if (minCost[k] > minCost[j] + unitCost[j][k]) {
+                                minCost[k] = minCost[j] + unitCost[j][k];
+                                parent[k] = j;
+                            }
                         }
                     }
                 }
