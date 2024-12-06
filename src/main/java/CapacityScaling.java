@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SuccessiveShortestPaths implements Algorithm {
+public class CapacityScaling implements Algorithm {
 
     @Override
     public int[] findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d) {
