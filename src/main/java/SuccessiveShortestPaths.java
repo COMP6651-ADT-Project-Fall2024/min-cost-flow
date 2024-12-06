@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SuccessiveShortestPathsSC implements Algorithm {
+public class SuccessiveShortestPaths implements Algorithm {
 
     @Override
     public int[] findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d) {
@@ -18,7 +18,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
 
         while (scalingFactor >= 1) {
             while (d > 0 && augmentingPathExists(s, t, scalingFactor, residualCapacity)) {
-                List<Integer> minCostPath = findMinimumCostPath(s, t, scalingFactor, unitCost, residualCapacity);
+                List<Integer> minCostPath = findShortestPath(s, t, scalingFactor, residualCapacity);
                 int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualCapacity);
                 if (maxFlowThatCanBePushed > d) {
                     maxFlowThatCanBePushed = d;
@@ -81,10 +81,10 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return false;
     }
 
-    List<Integer> findMinimumCostPath(int s, int t, int scalingFactor, int[][] unitCost, int[][] residualCapacity) {
+    List<Integer> findShortestPath(int s, int t, int scalingFactor, int[][] residualCapacity) {
         int[] parent = new int[residualCapacity.length];
         Arrays.fill(parent, -1);
-        computeMinCostPathsFromSource(s, scalingFactor, unitCost, residualCapacity, parent);
+        computeShortestPathsFromSource(s, scalingFactor, residualCapacity, parent);
         List<Integer> minCostPath = new ArrayList<>();
 
         int k = t;
@@ -96,17 +96,17 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return minCostPath;
     }
 
-    void computeMinCostPathsFromSource(int s, int scalingFactor, int[][] unitCost, int[][] residualCapacity, int[] parent) {
-        int[] minCost = new int[unitCost.length];
-        Arrays.fill(minCost, Integer.MAX_VALUE);
-        minCost[s] = 0;
-        for (int i = 0; i < unitCost.length - 1; i ++) {
-            for (int j = 0; j < unitCost.length; j ++) {
-                for (int k = 0; k < minCost.length; k ++) {
-                    if(j != k && unitCost[j][k] != 0) {
+    void computeShortestPathsFromSource(int s, int scalingFactor, int[][] residualCapacity, int[] parent) {
+        int[] shortestDistance = new int[residualCapacity.length];
+        Arrays.fill(shortestDistance, Integer.MAX_VALUE);
+        shortestDistance[s] = 0;
+        for (int i = 0; i < residualCapacity.length - 1; i ++) {
+            for (int j = 0; j < residualCapacity.length; j ++) {
+                for (int k = 0; k < residualCapacity.length; k ++) {
+                    if(j != k) {
                         if (residualCapacity[j][k] >= scalingFactor) {
-                            if (minCost[k] > minCost[j] + unitCost[j][k]) {
-                                minCost[k] = minCost[j] + unitCost[j][k];
+                            if (shortestDistance[k] > shortestDistance[j] + 1) {
+                                shortestDistance[k] = shortestDistance[j] + 1;
                                 parent[k] = j;
                             }
                         }
