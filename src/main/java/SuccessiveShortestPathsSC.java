@@ -101,7 +101,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         return minCostPath;
     }
 
-    private void computeMinCostPathsFromSource(int s, int scalingFactor, int[][] unitCost, int[][] residualCapacity, int[] parent) {
+    private void computeMinCostPathsFromSource(int s, int scalingFactor, int[][] unitCost, int[][] residualGraph, int[] parent) {
         int[] minCost = new int[n];
         Arrays.fill(minCost, Integer.MAX_VALUE);
         minCost[s] = 0;
@@ -110,7 +110,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
             for (int j = 0; j < n; j ++) {
                 for (int k = 0; k < n; k ++) {
                     if(j != k && unitCost[j][k] != 0) {
-                        if (residualCapacity[j][k] >= scalingFactor) {
+                        if (residualGraph[j][k] >= scalingFactor) {
                             if (minCost[k] > minCost[j] + unitCost[j][k]) {
                                 minCost[k] = minCost[j] + unitCost[j][k];
                                 parent[k] = j;
@@ -122,10 +122,10 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         }
     }
 
-    private int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualCapacity) {
+    private int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualGraph) {
         int maxFlowThatCanBePushed = Integer.MAX_VALUE;
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[minCostPath.get(i)][minCostPath.get(i + 1)]);
+            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualGraph[minCostPath.get(i)][minCostPath.get(i + 1)]);
         }
 
         // I think this needs to return infinite if minCostPath.size() <= 1. So I think it's okay
