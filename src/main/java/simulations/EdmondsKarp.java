@@ -2,10 +2,20 @@ package simulations;
 
 import graph.Graph;
 import graph.Graph.Edge;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class EdmondsKarp {
-    public int maxFlow(Graph graph, int source, int sink) {
+
+    public static int computeMaxFlow(int[][] adjacencyMatrix, int[][] cap, int[][] unitCost, int source, int sink) {
+        Graph graph = new Graph();
+        graph.loadGraphFromMatrices(adjacencyMatrix, cap, unitCost, source, sink);
+        return maxFlow(graph, source, sink);
+    }
+
+    public static int maxFlow(Graph graph, int source, int sink) {
         int maxFlow = 0;
 
         while (true) {
@@ -32,7 +42,7 @@ public class EdmondsKarp {
         return maxFlow;
     }
 
-    private int bfs(Graph graph, int source, int sink, Edge[] parent) {
+    private static int bfs(Graph graph, int source, int sink, Edge[] parent) {
         Queue<Integer> queue = new LinkedList<>();
         boolean[] visited = new boolean[parent.length];
         queue.add(source);
@@ -60,7 +70,7 @@ public class EdmondsKarp {
         return 0; // No augmenting path found
     }
 
-    private int getMinResidualCapacity(Edge[] parent, int source, int sink) {
+    private static int getMinResidualCapacity(Edge[] parent, int source, int sink) {
         int flow = Integer.MAX_VALUE;
         int current = sink;
 

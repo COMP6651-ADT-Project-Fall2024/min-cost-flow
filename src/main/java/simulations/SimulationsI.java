@@ -1,5 +1,7 @@
 package simulations;
 
+import static simulations.EdmondsKarp.computeMaxFlow;
+
 import graph.GraphHelper;
 import graph.GraphReader;
 
@@ -23,7 +25,7 @@ public class SimulationsI {
 
             int upperCap = findUpperCap(cap);
             int upperCost = findUpperCost(unitCost);
-            // find fMax
+            int fMax = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
             int[] visited = new int[n];
             int nodesInLargestConnectedComponent = findSizeOfConnectedComponent(adjacencyMatrix, visited, source);
             visited = new int[n];

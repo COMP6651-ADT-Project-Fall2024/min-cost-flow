@@ -1,10 +1,16 @@
 package graph;
+
 import constants.Constants;
-import constants.Constants.* ;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Graph {
 
@@ -18,7 +24,18 @@ public class Graph {
         this.vertices = new HashSet<>();
     }
 
-    public void loadGraphFromFile(String fileName, int source, int sink) throws IOException{
+    public void loadGraphFromMatrices(int[][] adjacencyMatrix, int[][] cap, int[][] unitCost, int source, int sink) {
+        int n = adjacencyMatrix.length;
+        for (int i = 0; i < n; i ++) {
+            for (int j = 0; j < n; j ++) {
+                if (adjacencyMatrix[i][j] == 1) {
+                    addEdge(i, j, cap[i][j], unitCost[i][j]);
+                }
+            }
+        }
+    }
+
+    public void loadGraphFromFile(String fileName, int source, int sink) throws IOException {
         this.source = source;
         this.sink = sink;
         fileName = Constants.RESOURCES_PATH + fileName ;
@@ -58,7 +75,6 @@ public class Graph {
 
     }
 
-
     public List<Edge> getEdgesFromVertex(int vertex){
         return adjacencyList.getOrDefault(vertex, new ArrayList<>());
     }
@@ -75,8 +91,6 @@ public class Graph {
         return vertices;
     }
 
-
-
     public static class Edge{
         private int source;
         private int destination;
@@ -84,7 +98,6 @@ public class Graph {
         private int cost;
         private int flow;
         private Edge residual;  // maybe should be an int
-
 
         public Edge(int source, int destination, int capacity, int cost) {
             this.source = source;
@@ -97,10 +110,12 @@ public class Graph {
         public int remainingCapacity(){
             return capacity - flow;
         }
+
         public void augmentFlow(int amount){
             flow += amount;
             residual.flow -=amount;
         }
+
         public int getSource() {
             return source;
         }
@@ -128,10 +143,5 @@ public class Graph {
             return String.format("Edge(%d -> %d | Capacity: %d | Cost: %d | Flow: %d)",
                     source, destination, capacity, cost, flow);
         }
-
     }
-
-
-
-
 }
