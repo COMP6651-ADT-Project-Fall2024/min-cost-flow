@@ -2,31 +2,38 @@ package algorithms;
 
 import graph.Graph;
 import java.util.*;
-
+import util.PathUtils;
 public class PrimalDual {
 
     private Map<Integer, Double> nodePotentials;
     private List<FlowPath> flowPaths = new ArrayList<>();
 
 
-    public void primalDualAlgo(Graph g, int s, int t, int demand) {
+    public AlgoResult primalDualAlgo(Graph g, int s, int t, int demand) {
         nodePotentials = new HashMap<>();
         // Initialize node potentials using Bellman-Ford
         boolean success = initializePotentials(g, s);
 
         if (!success) {
             System.out.println("Negative cycle detected. Algorithm cannot proceed.");
-            return;
+            return null;
         }
+        int longestAcyclicPath = PathUtils.findLongestAcyclicPath(g, s, t);
+        if (longestAcyclicPath == -1) {
+            System.out.println("No path exists from source to sink.");
+            return null;
+        }
+
 
         int totalFlow = 0;
         double totalCost = 0.0;
+        int pathCount = 0;
+        double cumulativePathLength = 0;
 
         while (totalFlow < demand) {
             // Run Dijkstra's algorithm to find the shortest path with reduced costs
             PathResult pathResult = dijkstra(g, s, t);
-            System.out.println(pathResult);
-            System.out.println();
+
 
             if (pathResult == null) {
                 System.out.println("Demand cannot be met. Total flow: : " + totalFlow);
@@ -44,13 +51,17 @@ public class PrimalDual {
 
             // Store the flow path for traceability
             flowPaths.add(new FlowPath(pathResult.path, amount, pathResult.pathCost));
+            pathCount++;
+            cumulativePathLength += (pathResult.path.size() - 1); // Number of edges
             // Update node potentials
             updatePotentials(pathResult.distances);
         }
-
-        System.out.println("Total flow: " + totalFlow);
-        System.out.println("Total cost: " + totalCost);
+        double meanLength = pathCount > 0 ? (double) cumulativePathLength / pathCount : 0.0;
+        double meanProportionalLength = longestAcyclicPath > 0 ? meanLength / longestAcyclicPath : 0.0;
         displayFlowPaths();
+        System.out.println(new AlgoResult(totalCost, totalFlow, pathCount, meanLength, meanProportionalLength));
+        return new AlgoResult(totalCost, totalFlow, pathCount, meanLength, meanProportionalLength);
+
     }
 
     private void displayFlowPaths() {
@@ -115,11 +126,6 @@ public class PrimalDual {
             nodePotentials.put(v, distances.get(v));
         }
 
-        System.out.println("init Potentials:");
-        for (Map.Entry<Integer, Double> entry : nodePotentials.entrySet()) {
-            System.out.println("Node " + entry.getKey() + ": " + entry.getValue());
-        }
-        System.out.println(); // Add a blank line for readability
         return true;
     }
 
@@ -200,12 +206,12 @@ public class PrimalDual {
                 nodePotentials.put(v, nodePotentials.get(v) + distances.get(v));
             }
         }
-        // Log the updated node potentials
-        System.out.println("Updated Node Potentials:");
-        for (Map.Entry<Integer, Double> entry : nodePotentials.entrySet()) {
-            System.out.println("Node " + entry.getKey() + ": " + entry.getValue());
-        }
-        System.out.println(); // Add a blank line for readability
+
+//        System.out.println("Updated Node Potentials:");
+//        for (Map.Entry<Integer, Double> entry : nodePotentials.entrySet()) {
+//            System.out.println("Node " + entry.getKey() + ": " + entry.getValue());
+//        }
+//        System.out.println();
     }
 
 
@@ -269,5 +275,6 @@ public class PrimalDual {
             this.cost = cost;
         }
     }
+
 
 }
