@@ -1,3 +1,7 @@
+package algorithms;
+
+import graph.GraphReader;
+import simulations.SimulationsI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
