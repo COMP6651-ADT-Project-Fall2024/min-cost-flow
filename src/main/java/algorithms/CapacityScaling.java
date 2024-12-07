@@ -3,6 +3,7 @@ package algorithms;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import graph.GraphReader;
 
 public class CapacityScaling implements Algorithm {
 
