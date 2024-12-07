@@ -47,7 +47,7 @@ public class SimulationsI {
         return new int[] {source, target};
     }
 
-    private static void removeEdgesNotInSourceSinkNetwork(int[][] adjacencyMatrix, int[][] cap, int[][] unitCost, int source, int sink) {
+    public static void removeEdgesNotInSourceSinkNetwork(int[][] adjacencyMatrix, int[][] cap, int[][] unitCost, int source, int sink) {
         int n = adjacencyMatrix.length;
         int[] visited1 = new int[n];
         dfsVisit(adjacencyMatrix, source, visited1);

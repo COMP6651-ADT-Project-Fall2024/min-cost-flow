@@ -11,6 +11,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(graphFileName);
         int[][] cap = GraphReader.getCapacityMatrix(graphFileName);
         int[][] unitCost = GraphReader.getUnitCostMatrix(graphFileName);
+        SimulationsI.removeEdgesNotInSourceSinkNetwork(adjacencyMatrix, cap, unitCost, s, t);
 
         n = adjacencyMatrix.length;
 
