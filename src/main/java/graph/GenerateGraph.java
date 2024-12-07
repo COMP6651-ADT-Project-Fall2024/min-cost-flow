@@ -22,8 +22,8 @@ public class GenerateGraph {
 
         Random random = new Random();
         for (int i = 0; i < n; i ++) {
-            double x = random.nextDouble();
-            double y = random.nextDouble();
+            double x = random.nextDouble(); // there is no method in API to easily generate with 1 inclusive
+            double y = random.nextDouble(); // but this should be okay for our project
             vertices[i].setX(x);
             vertices[i].setY(y);
         }
@@ -37,7 +37,7 @@ public class GenerateGraph {
                 double squareOfDistance = (vertices[i].getX() - vertices[j].getX()) * (vertices[i].getX() - vertices[j].getX())
                         + (vertices[i].getY() - vertices[j].getY()) * (vertices[i].getY() - vertices[j].getY());
                 if (squareOfDistance <= r * r) {
-                    double rand = random.nextDouble();
+                    double rand = random.nextDouble(); // again the same but shouldn't matter much
                     if (rand < 0.3) {
                         if (adjacencyMatrix[i][j] == 0 && adjacencyMatrix[j][i] == 0) {
                             adjacencyMatrix[i][j] = 1;
@@ -54,8 +54,8 @@ public class GenerateGraph {
         for (int i = 0; i < n; i ++) {
             for (int j = 0; j < n; j++) {
                 if (adjacencyMatrix[i][j] == 1) {
-                    cap[i][j] = random.nextInt(upperCap - 1) + 1;
-                    unitCost[i][j] = random.nextInt(upperCost - 1) + 1;
+                    cap[i][j] = random.nextInt(upperCap) + 1;
+                    unitCost[i][j] = random.nextInt(upperCost) + 1;
                 }
             }
         }
@@ -70,13 +70,13 @@ public class GenerateGraph {
             graphNumber ++;
 
             for (int i = 0; i < adjacencyMatrix.length; i ++) {
-                for (int j = 0; j < adjacencyMatrix[0].length; j++) {
+                for (int j = 0; j < adjacencyMatrix.length; j++) {
                     if (adjacencyMatrix[i][j] == 1) {
                         bufferedWriter.write(i + " " + j + " " + cap[i][j] + " " + unitCost[i][j] + "\n");
                     }
                 }
             }
-            System.out.print("File is created successfully with the content.");
+            System.out.print("File is created successfully with the edges.");
             bufferedWriter.close();
         } catch (IOException e) {
             throw new IllegalStateException("Some issue when writing to file");
