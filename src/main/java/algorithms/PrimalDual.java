@@ -15,7 +15,7 @@ public class PrimalDual {
         boolean success = initializePotentials(g, s);
 
         if (!success) {
-            System.out.println("Negative cycle detected. Algorithm cannot proceed.");
+            System.out.println("Negative cycle detected. Algo cannot proceed.");
             return null;
         }
         int longestAcyclicPath = PathUtils.findLongestAcyclicPath(g, s, t);
