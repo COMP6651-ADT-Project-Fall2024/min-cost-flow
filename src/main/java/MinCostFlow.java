@@ -14,10 +14,10 @@ public class MinCostFlow {
         }
         else if(user_input.equals("2")){
             System.out.println("Choose which algo to use: \n1. Primal Dual");
-            AlgoDriver driver = new AlgoDriver(0,9,5);
+            AlgoDriver driver = new AlgoDriver(1,17,10);
             String algoChoice = scanner.nextLine();
             if(algoChoice.equals("1")){
-                driver.primalDualDriver("graph1.txt");
+                driver.primalDualDriver("graph3.txt");
             }
         }
 

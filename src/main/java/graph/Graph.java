@@ -78,12 +78,12 @@ public class Graph {
 
 
     public static class Edge{
-        int source;
-        int destination;
-        int capacity;
-        int cost;
+        private int source;
+        private int destination;
+        private int capacity;
+        private int cost;
         private int flow;
-        private Edge residual;
+        private Edge residual;  // maybe should be an int
 
 
         public Edge(int source, int destination, int capacity, int cost) {
@@ -122,6 +122,13 @@ public class Graph {
         public void setResidual(Edge residual) {
             this.residual = residual;
         }
+
+        @Override
+        public String toString() {
+            return String.format("Edge(%d -> %d | Capacity: %d | Cost: %d | Flow: %d)",
+                    source, destination, capacity, cost, flow);
+        }
+
     }
 
 
