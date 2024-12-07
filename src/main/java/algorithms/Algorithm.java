@@ -2,5 +2,5 @@ package algorithms;
 
 public interface Algorithm {
 
-    int[] findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d);
+    AlgoResult findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d);
 }

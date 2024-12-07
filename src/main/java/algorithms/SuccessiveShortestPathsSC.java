@@ -1,7 +1,10 @@
 package algorithms;
 
+import static graph.GraphHelper.findLengthOfLongestAcyclicPath;
+
+import graph.GraphHelper;
 import graph.GraphReader;
-import simulations.SimulationsI;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,13 +12,15 @@ import java.util.List;
 public class SuccessiveShortestPathsSC implements Algorithm {
 
     private int n;
+    private int numOfAugmentingPaths = 0;
+    private double sumOfLengthsOfAugmentingPaths = 0;
 
     @Override
-    public int[] findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d) {
+    public AlgoResult findMinCostFlowAndTotalCost(String graphFileName, int s, int t, int d) {
         int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(graphFileName);
         int[][] cap = GraphReader.getCapacityMatrix(graphFileName);
         int[][] unitCost = GraphReader.getUnitCostMatrix(graphFileName);
-        SimulationsI.removeEdgesNotInSourceSinkNetwork(adjacencyMatrix, cap, unitCost, s, t);
+        GraphHelper.removeEdgesNotInSourceSinkNetwork(adjacencyMatrix, cap, unitCost, s, t);
 
         n = adjacencyMatrix.length;
 
@@ -39,10 +44,20 @@ public class SuccessiveShortestPathsSC implements Algorithm {
             scalingFactor = scalingFactor / 2;
         }
 
+
+        AlgoResult result;
         if (d > 0) {
-            return new int[] {-1, -1};
+            result = new AlgoResult(-1, -1, -1, -1, -1);
+        } else {
+            double avgLengthOfAugmentingPath = sumOfLengthsOfAugmentingPaths / (numOfAugmentingPaths * 1.00);
+            double meanProportionalLength = avgLengthOfAugmentingPath / findLengthOfLongestAcyclicPath(adjacencyMatrix, s, t);
+            result = new AlgoResult(findCost(flow, unitCost),
+                    getFlowValue(s, flow),
+                    numOfAugmentingPaths,
+                    avgLengthOfAugmentingPath,
+                    meanProportionalLength);
         }
-        return new int[] {getFlowValue(s, flow), findCost(flow, unitCost)};
+        return result;
     }
 
     private int getMaxCapacity(int[][] cap) {
@@ -138,6 +153,11 @@ public class SuccessiveShortestPathsSC implements Algorithm {
     }
 
     private void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> minCostPath) {
+        numOfAugmentingPaths ++;
+        if (!minCostPath.isEmpty()) {
+            sumOfLengthsOfAugmentingPaths += minCostPath.size() - 1;
+        }
+
         for (int i = 0; i < minCostPath.size() - 1; i ++) {
             int u = minCostPath.get(i);
             int v = minCostPath.get(i + 1);
@@ -181,8 +201,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
 
     public static void main(String[] args) {
         SuccessiveShortestPathsSC alg = new SuccessiveShortestPathsSC();
-        int[] a = alg.findMinCostFlowAndTotalCost("1", 0, 9, 1);
-        System.out.println(a[0]);
-        System.out.println(a[1]);
+        AlgoResult a = alg.findMinCostFlowAndTotalCost("1", 0, 9, 1);
+        System.out.println(a);
     }
 }
