@@ -1,6 +1,7 @@
 import graph.Graph;
 import algorithms.*;
 import java.io.IOException;
+import util.GraphUtils;
 
 public class AlgoDriver {
     int source;
@@ -13,13 +14,9 @@ public class AlgoDriver {
         this.demand = demand;
     }
 
-    private Graph loadGraph(String fileName) throws IOException {
-        Graph  graph = new Graph();
-        graph.loadGraphFromFile(fileName, this.source, this.sink);
-        return graph;
-    }
+
     public void primalDualDriver(String fileName) throws IOException {
-        Graph graph = loadGraph(fileName);
+        Graph graph = GraphUtils.loadGraph(fileName, this.source, this.sink);
         PrimalDual primalDual = new PrimalDual();
         primalDual.primalDualAlgo(graph, this.source, this.sink, this.demand);
 
