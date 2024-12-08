@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class SimulationsI {
+public class Simulations1 {
 
     private static double[][] inputValues = {
             {100, 0.2, 8, 5},
@@ -59,8 +59,8 @@ public class SimulationsI {
             int sink = sourceAndSink[i][1];
             GraphHelper.removeEdgesNotInSourceSinkNetwork(adjacencyMatrix, cap, unitCost, source, sink);
 
-            int upperCap = findUpperCap(cap);
-            int upperCost = findUpperCost(unitCost);
+//            int upperCap = findUpperCap(cap);
+//            int upperCost = findUpperCost(unitCost);
             fMaxValues[i] = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
             int[] visited = new int[n];
             int nodesInLargestConnectedComponent = findSizeOfConnectedComponent(adjacencyMatrix, visited, source);

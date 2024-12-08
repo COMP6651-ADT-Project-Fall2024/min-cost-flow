@@ -97,7 +97,7 @@ public class PrimalDual {
                     if (edge.remainingCapacity() > 0) {
                         int v = edge.getDestination();
                         double weight = edge.getCost();
-                        if (distances.get(u) + weight < distances.get(v)) {
+                        if (weight < distances.get(v) - distances.get(u)) {
                             distances.put(v, distances.get(u) + weight);
                             predecessors.put(v, edge);
                         }
@@ -112,7 +112,7 @@ public class PrimalDual {
                 if (edge.remainingCapacity() > 0) {
                     int v = edge.getDestination();
                     double weight = edge.getCost();
-                    if (distances.get(u) + weight < distances.get(v)) {
+                    if (weight < distances.get(v) - distances.get(u)) {
                         // Negative cycle detected
                         return false;
                     }
@@ -153,7 +153,7 @@ public class PrimalDual {
                 if (edge.remainingCapacity() > 0) {
                     int v = edge.getDestination();
                     double cost = edge.getCost() + nodePotentials.get(u) - nodePotentials.get(v);
-                    if (distances.get(u) + cost < distances.get(v)) {
+                    if (cost < distances.get(v) - distances.get(u)) {
                         distances.put(v, distances.get(u) + cost);
                         predecessors.put(v, edge);
                         queue.add(new VertexDistance(v, distances.get(v)));

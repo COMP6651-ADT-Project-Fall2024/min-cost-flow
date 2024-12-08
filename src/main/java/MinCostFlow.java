@@ -1,6 +1,6 @@
 import algorithms.AlgoDriver;
 import graph.GenerateGraph;
-import simulations.SimulationsI;
+import simulations.Simulations1;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -27,7 +27,7 @@ public class MinCostFlow {
             System.out.println("Choose which Simulation to run: \n1. Simulation1");
             String simulationChoice = scanner.nextLine();
             if (simulationChoice.equals("1")) {
-                SimulationsI.run();
+                Simulations1.run();
             }
         }
     }
