@@ -1,5 +1,7 @@
 package graph;
 
+import java.util.Arrays;
+
 public class GraphHelper {
 
     public static void removeEdgesNotInSourceSinkNetwork(int[][] adjacencyMatrix, int[][] cap, int[][] unitCost, int source, int sink) {
@@ -69,7 +71,7 @@ public class GraphHelper {
             if (i != j && visited[j] == 0 && adjacencyMatrix[i][j] == 1) {
                 int lenOfLongestAcyclicPathFromJ = getLengthOfLongestAcyclicPath(adjacencyMatrix, longestPathLength, visited, j, t);
                 int lenOfLongestAcyclicPathFromI = lenOfLongestAcyclicPathFromJ + 1;
-                maxLen = Math.max(maxLen, 1 + lenOfLongestAcyclicPathFromI);
+                maxLen = Math.max(maxLen, lenOfLongestAcyclicPathFromI);
             }
         }
 
