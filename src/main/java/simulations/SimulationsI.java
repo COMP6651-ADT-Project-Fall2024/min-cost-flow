@@ -9,10 +9,10 @@ import algorithms.Algorithm;
 import algorithms.CapacityScaling;
 import algorithms.SuccessiveShortestPaths;
 import algorithms.SuccessiveShortestPathsSC;
-import graph.GenerateGraph;
 import graph.GraphHelper;
 import graph.GraphReader;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -61,12 +61,12 @@ public class SimulationsI {
 
             int upperCap = findUpperCap(cap);
             int upperCost = findUpperCost(unitCost);
-//            fMaxValues[i] = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
+            fMaxValues[i] = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
             int[] visited = new int[n];
             int nodesInLargestConnectedComponent = findSizeOfConnectedComponent(adjacencyMatrix, visited, source);
-            visited = new int[n];
+            Arrays.fill(visited, 0);
             int maxOutDegreeInLCC = findMaxOutDegree(adjacencyMatrix, visited, source);
-            visited = new int[n];
+            Arrays.fill(visited, 0);
             int maxInDegreeInLCC = findMaxInDegree(adjacencyMatrix, visited, source);
             double averageDegreeInLCC = findEdgesInLCC(adjacencyMatrix) / (nodesInLargestConnectedComponent * 1.00);
 
@@ -92,11 +92,11 @@ public class SimulationsI {
         Algorithm sspcs = new SuccessiveShortestPathsSC();
         AlgoDriver pd = new AlgoDriver();
         for (int i = 1; i <= 8; i ++) {
-            double k = 0.90;
+            double k = 0.95;
             AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             AlgoResult sspcsResult = sspcs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
-            AlgoResult pdResult = pd.primalDualDriver(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult pdResult = pd.primalDualDriver("graph" + i + ".txt", sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             System.out.println("\n" + "SSP    " + i + "    " + sspResult.minimumCost + "    " + sspResult.numberOfPaths + "    " + sspResult.meanLength + "    " + sspResult.meanProportionalLength);
             System.out.println("\n" + "CS     " + i + "    " + csResult.minimumCost + "    " + csResult.numberOfPaths + "    " + csResult.meanLength + "    " + csResult.meanProportionalLength);
             System.out.println("\n" + "SSPCS  " + i + "    " + sspcsResult.minimumCost + "    " + sspcsResult.numberOfPaths + "    " + sspcsResult.meanLength + "    " + sspcsResult.meanProportionalLength);

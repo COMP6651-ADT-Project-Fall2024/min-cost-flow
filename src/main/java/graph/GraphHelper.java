@@ -47,12 +47,17 @@ public class GraphHelper {
 
     public static int findLengthOfLongestAcyclicPath(int[][] adjacencyMatrix, int source, int sink) {
         int[] visited = new int[adjacencyMatrix.length];
-        return getLengthOfLongestAcyclicPath(adjacencyMatrix, visited, source, sink);
+        int[] longestPathLength = new int[adjacencyMatrix.length];
+        return getLengthOfLongestAcyclicPath(adjacencyMatrix, longestPathLength, visited, source, sink);
     }
 
-    private static int getLengthOfLongestAcyclicPath(int[][] adjacencyMatrix, int[] visited, int i, int t) {
+    private static int getLengthOfLongestAcyclicPath(int[][] adjacencyMatrix, int[] longestPathLength, int[] visited, int i, int t) {
         if (i == t) {
             return 0;
+        }
+
+        if (longestPathLength[i] != 0) {
+            return longestPathLength[i];
         }
 
         int n = adjacencyMatrix.length;
@@ -62,12 +67,15 @@ public class GraphHelper {
         int maxLen = 0;
         for (int j = 0; j < n; j ++) {
             if (i != j && visited[j] == 0 && adjacencyMatrix[i][j] == 1) {
-                int lenOfLongestAcyclicPathFromJ = getLengthOfLongestAcyclicPath(adjacencyMatrix, visited, j, t);
-                maxLen = Math.max(maxLen, lenOfLongestAcyclicPathFromJ);
+                int lenOfLongestAcyclicPathFromJ = getLengthOfLongestAcyclicPath(adjacencyMatrix, longestPathLength, visited, j, t);
+                int lenOfLongestAcyclicPathFromI = lenOfLongestAcyclicPathFromJ + 1;
+                maxLen = Math.max(maxLen, 1 + lenOfLongestAcyclicPathFromI);
             }
         }
 
         visited[i] = 0;
+        longestPathLength[i] = maxLen;
+
         return maxLen;
     }
 }

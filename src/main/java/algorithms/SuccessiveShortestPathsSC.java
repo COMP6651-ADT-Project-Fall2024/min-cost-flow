@@ -131,7 +131,7 @@ public class SuccessiveShortestPathsSC implements Algorithm {
                 for (int k = 0; k < n; k ++) {
                     if(j != k && unitCost[j][k] != 0) {
                         if (residualGraph[j][k] >= scalingFactor) {
-                            if (minCost[k] > minCost[j] + unitCost[j][k]) {
+                            if (minCost[k] - minCost[j] > unitCost[j][k]) {
                                 minCost[k] = minCost[j] + unitCost[j][k];
                                 parent[k] = j;
                             }

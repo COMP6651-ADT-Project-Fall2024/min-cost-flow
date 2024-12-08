@@ -128,7 +128,7 @@ public class CapacityScaling implements Algorithm {
                 for (int k = 0; k < n; k ++) {
                     if(j != k) {
                         if (residualGraph[j][k] >= scalingFactor) {
-                            if (shortestDistance[k] > shortestDistance[j] + 1) {
+                            if (shortestDistance[k] - shortestDistance[j] > 1) {
                                 shortestDistance[k] = shortestDistance[j] + 1;
                                 parent[k] = j;
                             }

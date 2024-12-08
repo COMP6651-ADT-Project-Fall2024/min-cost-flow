@@ -112,7 +112,7 @@ public class SuccessiveShortestPaths implements Algorithm {
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < n; k++) {
                     if (residualGraph[j][k] > 0 && unitCost[j][k] != 0) {
-                        if (minCost[k] > minCost[j] + unitCost[j][k]) {
+                        if (minCost[k] - minCost[j] > unitCost[j][k]) {
                             minCost[k] = minCost[j] + unitCost[j][k];
                             parent[k] = j;
                         }

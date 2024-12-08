@@ -58,10 +58,9 @@ public class PrimalDual {
         }
         double meanLength = pathCount > 0 ? (double) cumulativePathLength / pathCount : 0.0;
         double meanProportionalLength = longestAcyclicPath > 0 ? meanLength / longestAcyclicPath : 0.0;
-        displayFlowPaths();
-        System.out.println(new AlgoResult(totalCost, totalFlow, pathCount, meanLength, meanProportionalLength));
+//        displayFlowPaths();
+//        System.out.println(new AlgoResult(totalCost, totalFlow, pathCount, meanLength, meanProportionalLength));
         return new AlgoResult(totalCost, totalFlow, pathCount, meanLength, meanProportionalLength);
-
     }
 
     private void displayFlowPaths() {
