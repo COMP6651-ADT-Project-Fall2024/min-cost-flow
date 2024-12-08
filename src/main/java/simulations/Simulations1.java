@@ -45,7 +45,7 @@ public class Simulations1 {
             generateSinkSourceGraph((int) inputValues[i][0], inputValues[i][1], (int) inputValues[i][2], (int) inputValues[i][3]);
         }
 
-        System.out.println("\nGraph files for graphs 1 to 8 created successfully");
+        System.out.println("\n** Graph files for graphs 1 to 8 created successfully **");
         System.out.println("\n===================================================================================================================================================================");
 
     }
