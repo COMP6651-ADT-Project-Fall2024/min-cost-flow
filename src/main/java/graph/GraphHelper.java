@@ -9,13 +9,13 @@ public class GraphHelper {
         int[][] adjacencyMatrixForTranspose = new int[n][n];
         for (int i = 0; i < n; i ++) {
             for (int j = 0; j < n; j ++) {
-                if (adjacencyMatrix[j][i] == 1) {
-                    adjacencyMatrixForTranspose[i][j] = 1;
+                if (i != j && adjacencyMatrix[i][j] == 1) {
+                    adjacencyMatrixForTranspose[j][i] = 1;
                 }
             }
         }
         int[] visited2 = new int[n];
-        dfsVisit(adjacencyMatrix, sink, visited2);
+        dfsVisit(adjacencyMatrixForTranspose, sink, visited2);
         int[] visitedCombined = new int[n];
         for (int i = 0; i < n; i ++) {
             if (visited1[i] == 1 && visited2[i] == 1) {
@@ -29,6 +29,7 @@ public class GraphHelper {
                     adjacencyMatrix[i][j] = 0;
                     cap[i][j] = 0;
                     unitCost[i][j] = 0;
+//                    System.out.println("Edge " + i + " to " + j + " removed.");
                 }
             }
         }

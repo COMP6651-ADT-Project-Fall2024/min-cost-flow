@@ -76,7 +76,7 @@ public class GenerateGraph {
                     }
                 }
             }
-            System.out.print("File is created successfully with the edges.");
+            System.out.print("File is created successfully with the edges.\n");
             bufferedWriter.close();
         } catch (IOException e) {
             throw new IllegalStateException("Some issue when writing to file");

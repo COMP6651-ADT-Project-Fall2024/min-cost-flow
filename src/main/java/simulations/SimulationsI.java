@@ -1,7 +1,15 @@
 package simulations;
 
+import static graph.GenerateGraph.generateSinkSourceGraph;
 import static simulations.EdmondsKarp.computeMaxFlow;
 
+import algorithms.AlgoDriver;
+import algorithms.AlgoResult;
+import algorithms.Algorithm;
+import algorithms.CapacityScaling;
+import algorithms.SuccessiveShortestPaths;
+import algorithms.SuccessiveShortestPathsSC;
+import graph.GenerateGraph;
 import graph.GraphHelper;
 import graph.GraphReader;
 
@@ -10,13 +18,41 @@ import java.util.Queue;
 
 public class SimulationsI {
 
-    public static void main(String[] args) {
+    private static double[][] inputValues = {
+            {100, 0.2, 8, 5},
+            {200, 0.2, 8, 5},
+            {100, 0.3, 8, 5},
+            {200, 0.3, 8, 5},
+            {100, 0.2, 64, 20},
+            {200, 0.2, 64, 20},
+            {100, 0.3, 64, 20},
+            {200, 0.3, 64, 20}
+    };
 
-        int[][] sourceAndSink = new int[8][2];
-        for (int i = 0; i <= 8; i ++) {
-            int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(String.valueOf(i));
-            int[][] cap = GraphReader.getCapacityMatrix(String.valueOf(i));
-            int[][] unitCost = GraphReader.getUnitCostMatrix(String.valueOf(i));
+    private static int[][] sourceAndSink;
+    private static int[] fMaxValues;
+
+    public static void run() {
+
+        generateGraphs();
+        printCharacteristicsOfGraphs();
+        runAlgorithms();
+    }
+
+    private static void generateGraphs() {
+
+        for (int i = 0; i < 8; i ++) {
+            generateSinkSourceGraph((int) inputValues[i][0], inputValues[i][1], (int) inputValues[i][2], (int) inputValues[i][3]);
+        }
+    }
+
+    private static void printCharacteristicsOfGraphs() {
+        sourceAndSink = new int[8][2];
+        fMaxValues = new int[8];
+        for (int i = 0; i < 8; i ++) {
+            int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(String.valueOf(i + 1));
+            int[][] cap = GraphReader.getCapacityMatrix(String.valueOf(i + 1));
+            int[][] unitCost = GraphReader.getUnitCostMatrix(String.valueOf(i + 1));
             int n = adjacencyMatrix.length;
             sourceAndSink[i] = determineSourceSinkNetworks(adjacencyMatrix);
             int source = sourceAndSink[i][0];
@@ -25,7 +61,7 @@ public class SimulationsI {
 
             int upperCap = findUpperCap(cap);
             int upperCost = findUpperCost(unitCost);
-            int fMax = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
+//            fMaxValues[i] = computeMaxFlow(adjacencyMatrix, cap, unitCost, source, sink);
             int[] visited = new int[n];
             int nodesInLargestConnectedComponent = findSizeOfConnectedComponent(adjacencyMatrix, visited, source);
             visited = new int[n];
@@ -33,7 +69,39 @@ public class SimulationsI {
             visited = new int[n];
             int maxInDegreeInLCC = findMaxInDegree(adjacencyMatrix, visited, source);
             double averageDegreeInLCC = findEdgesInLCC(adjacencyMatrix) / (nodesInLargestConnectedComponent * 1.00);
-            // print all
+
+            System.out.println("\n"
+                    + i + "  "
+                    + (int) inputValues[i][0] + "  "
+                    + inputValues[i][1] + "  "
+                    + (int) inputValues[i][2] + "  "
+                    + (int) inputValues[i][3] + "  "
+                    + fMaxValues[i] + "  "
+                    + nodesInLargestConnectedComponent + "  "
+                    + maxOutDegreeInLCC + "  "
+                    + maxInDegreeInLCC + "  "
+                    + averageDegreeInLCC + "  ");
+
+            System.out.println("\n==========================================\n\n");
+        }
+    }
+
+    private static void runAlgorithms() {
+        Algorithm ssp = new SuccessiveShortestPaths();
+        Algorithm cs = new CapacityScaling();
+        Algorithm sspcs = new SuccessiveShortestPathsSC();
+        AlgoDriver pd = new AlgoDriver();
+        for (int i = 1; i <= 8; i ++) {
+            double k = 0.90;
+            AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult sspcsResult = sspcs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult pdResult = pd.primalDualDriver(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            System.out.println("\n" + "SSP    " + i + "    " + sspResult.minimumCost + "    " + sspResult.numberOfPaths + "    " + sspResult.meanLength + "    " + sspResult.meanProportionalLength);
+            System.out.println("\n" + "CS     " + i + "    " + csResult.minimumCost + "    " + csResult.numberOfPaths + "    " + csResult.meanLength + "    " + csResult.meanProportionalLength);
+            System.out.println("\n" + "SSPCS  " + i + "    " + sspcsResult.minimumCost + "    " + sspcsResult.numberOfPaths + "    " + sspcsResult.meanLength + "    " + sspcsResult.meanProportionalLength);
+            System.out.println("\n" + "PD     " + i + "    " + pdResult.minimumCost + "    " + pdResult.numberOfPaths + "    " + pdResult.meanLength + "    " + pdResult.meanProportionalLength);
+            System.out.println("\n--------------------------------------------");
         }
     }
 
@@ -60,7 +128,7 @@ public class SimulationsI {
         int c = 1;
         for (int j = 0; j < n; j ++) {
             if (i != j && visited[j] == 0 && adjacencyMatrix[i][j] == 1) {
-                c = c + findSizeOfConnectedComponent(adjacencyMatrix, visited, j);
+                c += findSizeOfConnectedComponent(adjacencyMatrix, visited, j);
             }
         }
 
@@ -78,7 +146,9 @@ public class SimulationsI {
         while (!q.isEmpty()) {
             int i = q.remove();
             if (i == -1) {
-                q.add(-1);
+                if (!q.isEmpty()) {
+                    q.add(-1);
+                }
                 continue;
             }
             lastRemoved = i;
