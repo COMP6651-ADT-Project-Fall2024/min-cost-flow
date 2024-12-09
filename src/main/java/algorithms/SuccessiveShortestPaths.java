@@ -28,6 +28,10 @@ public class SuccessiveShortestPaths implements Algorithm {
         int[][] residualGraph = new int[n][n];
         computeResidualCapacity(residualGraph, adjacencyMatrix, flow, cap);
 
+        if (d == 0) {
+            return new AlgoResult(0, 0, 0, 0, 0);
+        }
+
         while (d > 0 && augmentingPathExists(s, t, residualGraph)) {
             List<Integer> minCostPath = findMinimumCostPath(s, t, unitCost, residualGraph);
             int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualGraph);
@@ -43,8 +47,8 @@ public class SuccessiveShortestPaths implements Algorithm {
         if (d > 0) {
             result = new AlgoResult(-1, -1, -1, -1, -1);
         } else {
-            double avgLengthOfAugmentingPath = sumOfLengthsOfAugmentingPaths / (numOfAugmentingPaths * 1.00);
-            double meanProportionalLength = avgLengthOfAugmentingPath / findLengthOfLongestAcyclicPath(adjacencyMatrix, s, t);
+            double avgLengthOfAugmentingPath = sumOfLengthsOfAugmentingPaths == 0 ? sumOfLengthsOfAugmentingPaths : sumOfLengthsOfAugmentingPaths / (numOfAugmentingPaths * 1.00);
+            double meanProportionalLength = avgLengthOfAugmentingPath == 0 ? 0 : avgLengthOfAugmentingPath / findLengthOfLongestAcyclicPath(adjacencyMatrix, s, t);
             result = new AlgoResult(findCost(flow, unitCost),
                     getFlowValue(s, flow),
                     numOfAugmentingPaths,

@@ -1,6 +1,7 @@
 package simulations;
 
 import static graph.GenerateGraph.generateSinkSourceGraph;
+import static graph.GenerateGraph.resetGraphNumber;
 import static simulations.EdmondsKarp.computeMaxFlow;
 
 import algorithms.AlgoDriver;
@@ -16,17 +17,39 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Simulations1 {
+public class Simulations2 {
 
-    private static double[][] inputValues = {
-            {100, 0.2, 8, 5},
-            {200, 0.2, 8, 5},
-            {100, 0.3, 8, 5},
-            {200, 0.3, 8, 5},
-            {100, 0.2, 64, 20},
-            {200, 0.2, 64, 20},
-            {100, 0.3, 64, 20},
-            {200, 0.3, 64, 20}
+    private static double[][][] inputSets = {
+            {
+                    {100, 0.9, 8, 5},
+                    {200, 0.9, 8, 5},
+                    {100, 0.9, 64, 20},
+                    {200, 0.9, 64, 20}
+            },
+            {
+                    {100, 0.1, 8, 5},
+                    {200, 0.1, 8, 5},
+                    {100, 0.1, 64, 20},
+                    {200, 0.1, 64, 20}
+            },
+            {
+                    {100, 0.2, 8, 1},
+                    {200, 0.3, 8, 1},
+                    {100, 0.2, 64, 1},
+                    {200, 0.3, 64, 1}
+            },
+            {
+                    {100, 0.9, 8, 1},
+                    {200, 0.9, 8, 1},
+                    {100, 0.9, 64, 1},
+                    {200, 0.9, 64, 1}
+            },
+            {
+                    {100, 0.2, 1, 5},
+                    {200, 0.2, 1, 5},
+                    {100, 0.2, 1, 20},
+                    {200, 0.2, 1, 20}
+            }
     };
 
     private static int[][] sourceAndSink;
@@ -34,28 +57,32 @@ public class Simulations1 {
 
     public static void run() {
 
-        generateGraphs();
-        printCharacteristicsOfGraphs();
-        runAlgorithms();
+        for (int t = 0; t < inputSets.length; t ++) {
+            System.out.println("\n**** RUNNING SIMULATIONS FOR SET " + (t + 1) + " **** :");
+            generateGraphs(t);
+            printCharacteristicsOfGraphs(t);
+            runAlgorithms(t);
+            resetGraphNumber();
+        }
     }
 
-    private static void generateGraphs() {
+    private static void generateGraphs(int t) {
 
-        for (int i = 0; i < 8; i ++) {
-            generateSinkSourceGraph((int) inputValues[i][0], inputValues[i][1], (int) inputValues[i][2], (int) inputValues[i][3]);
+        for (int i = 0; i < 4; i ++) {
+            generateSinkSourceGraph((int) inputSets[t][i][0], inputSets[t][i][1], (int) inputSets[t][i][2], (int) inputSets[t][i][3]);
         }
 
-        System.out.println("\n** Graph files for graphs 1 to 8 created successfully **");
+        System.out.println("\n-- Graph files for graphs 1 to 4 created successfully --");
         System.out.println("\n===================================================================================================================================================================");
 
     }
 
-    private static void printCharacteristicsOfGraphs() {
-        sourceAndSink = new int[8][2];
-        fMaxValues = new int[8];
+    private static void printCharacteristicsOfGraphs(int t) {
+        sourceAndSink = new int[4][2];
+        fMaxValues = new int[4];
         System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", "Graph", "n", "r", "upperCap", "upperCost", "fMax", "nodesInLCC", "maxOutDegree", "maxInDegree", "avgDegree");
         System.out.println();
-        for (int i = 0; i < 8; i ++) {
+        for (int i = 0; i < 4; i ++) {
             int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(String.valueOf(i + 1));
             int[][] cap = GraphReader.getCapacityMatrix(String.valueOf(i + 1));
             int[][] unitCost = GraphReader.getUnitCostMatrix(String.valueOf(i + 1));
@@ -74,14 +101,14 @@ public class Simulations1 {
             int maxInDegreeInLCC = findMaxInDegree(adjacencyMatrix, visited, source);
             double averageDegreeInLCC = findEdgesInLCC(adjacencyMatrix) / (nodesInLargestConnectedComponent * 1.00);
 
-            System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", i + 1, (int) inputValues[i][0], inputValues[i][1], (int) inputValues[i][2], (int) inputValues[i][3], fMaxValues[i], nodesInLargestConnectedComponent, maxOutDegreeInLCC, maxInDegreeInLCC, String.format("%.3f", averageDegreeInLCC));
+            System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", i + 1, (int) inputSets[t][i][0], inputSets[t][i][1], (int) inputSets[t][i][2], (int) inputSets[t][i][3], fMaxValues[i], nodesInLargestConnectedComponent, maxOutDegreeInLCC, maxInDegreeInLCC, String.format("%.3f", averageDegreeInLCC));
             System.out.println();
         }
 
         System.out.println("\n===================================================================================================================================================================\n\n");
     }
 
-    private static void runAlgorithms() {
+    private static void runAlgorithms(int t) {
         Algorithm ssp = new SuccessiveShortestPaths();
         Algorithm cs = new CapacityScaling();
         Algorithm sspcs = new SuccessiveShortestPathsSC();
@@ -89,7 +116,7 @@ public class Simulations1 {
         System.out.format("%10s%16s%16s%16s%16s%16s%16s", "Algorithm", "Graph", "f", "MC", "Paths", "ML", "MPL");
         System.out.println();
         System.out.println("------------------------------------------------------------------------------------------------------------");
-        for (int i = 1; i <= 8; i ++) {
+        for (int i = 1; i <= 4; i ++) {
             double k = 0.95;
             AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));

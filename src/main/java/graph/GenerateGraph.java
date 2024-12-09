@@ -22,8 +22,8 @@ public class GenerateGraph {
 
         Random random = new Random();
         for (int i = 0; i < n; i ++) {
-            double x = random.nextDouble(); // there is no method in API to easily generate with 1 inclusive
-            double y = random.nextDouble(); // but this should be okay for our project
+            double x = random.nextDouble();
+            double y = random.nextDouble();
             vertices[i].setX(x);
             vertices[i].setY(y);
         }
@@ -37,7 +37,7 @@ public class GenerateGraph {
                 double squareOfDistance = (vertices[i].getX() - vertices[j].getX()) * (vertices[i].getX() - vertices[j].getX())
                         + (vertices[i].getY() - vertices[j].getY()) * (vertices[i].getY() - vertices[j].getY());
                 if (squareOfDistance <= r * r) {
-                    double rand = random.nextDouble(); // again the same but shouldn't matter much
+                    double rand = random.nextDouble();
                     if (rand < 0.3) {
                         if (adjacencyMatrix[i][j] == 0 && adjacencyMatrix[j][i] == 0) {
                             adjacencyMatrix[i][j] = 1;
@@ -81,5 +81,9 @@ public class GenerateGraph {
         } catch (IOException e) {
             throw new IllegalStateException("Some issue when writing to file");
         }
+    }
+
+    public static void resetGraphNumber() {
+        graphNumber = 1;
     }
 }

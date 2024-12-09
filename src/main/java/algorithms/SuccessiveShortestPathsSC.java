@@ -28,6 +28,10 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         int[][] residualGraph = new int[n][n];
         computeResidualCapacity(residualGraph, adjacencyMatrix, flow, cap);
 
+        if (d == 0) {
+            return new AlgoResult(0, 0, 0, 0, 0);
+        }
+
         int scalingFactor = getMaxCapacity(cap);
 
         while (scalingFactor >= 1) {
@@ -49,8 +53,8 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         if (d > 0) {
             result = new AlgoResult(-1, -1, -1, -1, -1);
         } else {
-            double avgLengthOfAugmentingPath = sumOfLengthsOfAugmentingPaths / (numOfAugmentingPaths * 1.00);
-            double meanProportionalLength = avgLengthOfAugmentingPath / findLengthOfLongestAcyclicPath(adjacencyMatrix, s, t);
+            double avgLengthOfAugmentingPath = sumOfLengthsOfAugmentingPaths == 0 ? sumOfLengthsOfAugmentingPaths : sumOfLengthsOfAugmentingPaths / (numOfAugmentingPaths * 1.00);
+            double meanProportionalLength = avgLengthOfAugmentingPath == 0 ? 0 : avgLengthOfAugmentingPath / findLengthOfLongestAcyclicPath(adjacencyMatrix, s, t);
             result = new AlgoResult(findCost(flow, unitCost),
                     getFlowValue(s, flow),
                     numOfAugmentingPaths,
@@ -125,7 +129,6 @@ public class SuccessiveShortestPathsSC implements Algorithm {
         int[] minCost = new int[n];
         Arrays.fill(minCost, Integer.MAX_VALUE);
         minCost[s] = 0;
-        // I think this is what is expected, maybe check with others
         for (int i = 0; i < n - 1; i ++) {
             for (int j = 0; j < n; j ++) {
                 for (int k = 0; k < n; k ++) {
@@ -148,7 +151,6 @@ public class SuccessiveShortestPathsSC implements Algorithm {
             maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualGraph[minCostPath.get(i)][minCostPath.get(i + 1)]);
         }
 
-        // I think this needs to return infinite if minCostPath.size() <= 1. So I think it's okay
         return maxFlowThatCanBePushed;
     }
 
