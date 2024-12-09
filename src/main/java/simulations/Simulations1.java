@@ -103,7 +103,7 @@ public class Simulations1 {
         System.out.println();
         System.out.println("------------------------------------------------------------------------------------------------------------");
         for (int i = 1; i <= 8; i ++) {
-            double k = 0.95;
+            double k = 0.90;
             AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
             AlgoResult sspcsResult = sspcs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));

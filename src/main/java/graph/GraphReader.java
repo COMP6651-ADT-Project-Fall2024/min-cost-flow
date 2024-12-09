@@ -27,7 +27,7 @@ public class GraphReader {
             return adjacencyMatrix;
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-                System.out.println("The file you entered doesn't exist");
+                System.out.println("The file you entered, graph" + graphFileName + ".txt, doesn't exist");
             } else {
                 throw new IllegalStateException(e.getMessage());
             }
@@ -53,7 +53,7 @@ public class GraphReader {
             return capacityMatrix;
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-                System.out.println("The file you entered doesn't exist");
+                System.out.println("The file you entered, graph" + graphFileName + ".txt, doesn't exist");
             } else {
                 throw new IllegalStateException(e.getMessage());
             }
@@ -79,7 +79,7 @@ public class GraphReader {
             return unitCostMatrix;
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
-                System.out.println("The file you entered doesn't exist");
+                System.out.println("The file you entered, graph" + graphFileName + ".txt, doesn't exist");
             } else {
                 throw new IllegalStateException(e.getMessage());
             }

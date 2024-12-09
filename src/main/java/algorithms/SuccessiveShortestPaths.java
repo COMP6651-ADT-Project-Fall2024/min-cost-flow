@@ -164,10 +164,4 @@ public class SuccessiveShortestPaths implements Algorithm {
         }
         return totalCost;
     }
-
-    public static void main(String[] args) {
-        SuccessiveShortestPaths alg = new SuccessiveShortestPaths();
-        AlgoResult result = alg.findMinCostFlowAndTotalCost("1", 0, 9, 1);
-        System.out.println(result);
-    }
 }
