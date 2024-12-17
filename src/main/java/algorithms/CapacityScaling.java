@@ -2,12 +2,12 @@ package algorithms;
 
 import static graph.GraphHelper.findLengthOfLongestAcyclicPath;
 
+import graph.GraphHelper;
+import graph.GraphReader;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import graph.GraphHelper;
-import graph.GraphReader;
 
 public class CapacityScaling implements Algorithm {
 
@@ -36,12 +36,12 @@ public class CapacityScaling implements Algorithm {
 
         while (scalingFactor >= 1) {
             while (d > 0 && augmentingPathExists(s, t, scalingFactor, residualGraph)) {
-                List<Integer> minCostPath = findShortestPath(s, t, scalingFactor, residualGraph);
-                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(minCostPath, residualGraph);
+                List<Integer> shortestPath = findShortestPath(s, t, scalingFactor, residualGraph);
+                int maxFlowThatCanBePushed = findMaxFlowThatCanBePushed(shortestPath, residualGraph);
                 if (maxFlowThatCanBePushed > d) {
                     maxFlowThatCanBePushed = d;
                 }
-                augmentFlow(maxFlowThatCanBePushed, adjacencyMatrix, flow, minCostPath);
+                augmentFlow(maxFlowThatCanBePushed, adjacencyMatrix, flow, shortestPath);
                 computeResidualCapacity(residualGraph, adjacencyMatrix, flow, cap);
                 d = d - maxFlowThatCanBePushed;
             }
@@ -112,15 +112,15 @@ public class CapacityScaling implements Algorithm {
         int[] parent = new int[n];
         Arrays.fill(parent, -1);
         computeShortestPathsFromSource(s, scalingFactor, residualGraph, parent);
-        List<Integer> minCostPath = new ArrayList<>();
+        List<Integer> shortestPath = new ArrayList<>();
 
         int k = t;
         while (k != -1) {
-            minCostPath.add(0, k);
+            shortestPath.add(0, k);
             k = parent[k];
         }
 
-        return minCostPath;
+        return shortestPath;
     }
 
     void computeShortestPathsFromSource(int s, int scalingFactor, int[][] residualGraph, int[] parent) {
@@ -143,25 +143,25 @@ public class CapacityScaling implements Algorithm {
         }
     }
 
-    private int findMaxFlowThatCanBePushed(List<Integer> minCostPath, int[][] residualCapacity) {
+    private int findMaxFlowThatCanBePushed(List<Integer> shortestPath, int[][] residualCapacity) {
         int maxFlowThatCanBePushed = Integer.MAX_VALUE;
-        for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[minCostPath.get(i)][minCostPath.get(i + 1)]);
+        for (int i = 0; i < shortestPath.size() - 1; i ++) {
+            maxFlowThatCanBePushed = Math.min(maxFlowThatCanBePushed, residualCapacity[shortestPath.get(i)][shortestPath.get(i + 1)]);
         }
 
-        // I think this needs to return infinite if minCostPath.size() <= 1. So I think it's okay
+        // I think this needs to return infinite if shortestPath.size() <= 1. So I think it's okay
         return maxFlowThatCanBePushed;
     }
 
-    private void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> minCostPath) {
+    private void augmentFlow(int maxFlowThatCanBePushed, int[][] adjacencyMatrix, int[][] flow, List<Integer> shortestPath) {
         numOfAugmentingPaths ++;
-        if (!minCostPath.isEmpty()) {
-            sumOfLengthsOfAugmentingPaths += minCostPath.size() - 1;
+        if (!shortestPath.isEmpty()) {
+            sumOfLengthsOfAugmentingPaths += shortestPath.size() - 1;
         }
 
-        for (int i = 0; i < minCostPath.size() - 1; i ++) {
-            int u = minCostPath.get(i);
-            int v = minCostPath.get(i + 1);
+        for (int i = 0; i < shortestPath.size() - 1; i ++) {
+            int u = shortestPath.get(i);
+            int v = shortestPath.get(i + 1);
             if (adjacencyMatrix[u][v] == 1) {
                 flow[u][v] = flow[u][v] + maxFlowThatCanBePushed;
             } else if (adjacencyMatrix[v][u] == 1) {

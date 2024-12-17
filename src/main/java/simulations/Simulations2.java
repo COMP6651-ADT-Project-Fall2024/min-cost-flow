@@ -1,7 +1,8 @@
 package simulations;
 
 import static graph.GenerateGraph.generateSinkSourceGraph;
-import static graph.GenerateGraph.resetGraphNumber;
+import static graph.GenerateGraph.getGraphNumber;
+import static graph.GenerateGraph.setGraphNumber;
 import static simulations.EdmondsKarp.computeMaxFlow;
 
 import algorithms.AlgoDriver;
@@ -45,10 +46,10 @@ public class Simulations2 {
                     {200, 0.9, 64, 1}
             },
             {
-                    {100, 0.2, 1, 5},
-                    {200, 0.2, 1, 5},
-                    {100, 0.2, 1, 20},
-                    {200, 0.2, 1, 20}
+                    {100, 0.5, 1, 5},
+                    {200, 0.5, 1, 5},
+                    {100, 0.5, 1, 20},
+                    {200, 0.5, 1, 20}
             }
     };
 
@@ -56,13 +57,14 @@ public class Simulations2 {
     private static int[] fMaxValues;
 
     public static void run() {
+        setGraphNumber(9);
 
         for (int t = 0; t < inputSets.length; t ++) {
             System.out.println("\n**** RUNNING SIMULATIONS FOR SET " + (t + 1) + " **** :");
             generateGraphs(t);
-            printCharacteristicsOfGraphs(t);
-            runAlgorithms(t);
-            resetGraphNumber();
+            int graphNumber = getGraphNumber() - 4;
+            printCharacteristicsOfGraphs(t, graphNumber);
+            runAlgorithms(graphNumber);
         }
     }
 
@@ -72,20 +74,20 @@ public class Simulations2 {
             generateSinkSourceGraph((int) inputSets[t][i][0], inputSets[t][i][1], (int) inputSets[t][i][2], (int) inputSets[t][i][3]);
         }
 
-        System.out.println("\n-- Graph files for graphs 1 to 4 created successfully --");
+        System.out.println("\n-- Graph files for the input set created successfully --");
         System.out.println("\n===================================================================================================================================================================");
 
     }
 
-    private static void printCharacteristicsOfGraphs(int t) {
+    private static void printCharacteristicsOfGraphs(int t, int graphNumber) {
         sourceAndSink = new int[4][2];
         fMaxValues = new int[4];
         System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", "Graph", "n", "r", "upperCap", "upperCost", "fMax", "nodesInLCC", "maxOutDegree", "maxInDegree", "avgDegree");
         System.out.println();
         for (int i = 0; i < 4; i ++) {
-            int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(String.valueOf(i + 1));
-            int[][] cap = GraphReader.getCapacityMatrix(String.valueOf(i + 1));
-            int[][] unitCost = GraphReader.getUnitCostMatrix(String.valueOf(i + 1));
+            int[][] adjacencyMatrix = GraphReader.getAdjacencyMatrix(String.valueOf(graphNumber + i));
+            int[][] cap = GraphReader.getCapacityMatrix(String.valueOf(graphNumber + i));
+            int[][] unitCost = GraphReader.getUnitCostMatrix(String.valueOf(graphNumber + i));
             int n = adjacencyMatrix.length;
             sourceAndSink[i] = determineSourceSinkNetworks(adjacencyMatrix);
             int source = sourceAndSink[i][0];
@@ -101,14 +103,14 @@ public class Simulations2 {
             int maxInDegreeInLCC = findMaxInDegree(adjacencyMatrix, visited, source);
             double averageDegreeInLCC = findEdgesInLCC(adjacencyMatrix) / (nodesInLargestConnectedComponent * 1.00);
 
-            System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", i + 1, (int) inputSets[t][i][0], inputSets[t][i][1], (int) inputSets[t][i][2], (int) inputSets[t][i][3], fMaxValues[i], nodesInLargestConnectedComponent, maxOutDegreeInLCC, maxInDegreeInLCC, String.format("%.3f", averageDegreeInLCC));
+            System.out.format("%5s%16s%16s%16s%16s%16s%16s%16s%16s%16s", graphNumber + i, (int) inputSets[t][i][0], inputSets[t][i][1], (int) inputSets[t][i][2], (int) inputSets[t][i][3], fMaxValues[i], nodesInLargestConnectedComponent, maxOutDegreeInLCC, maxInDegreeInLCC, String.format("%.3f", averageDegreeInLCC));
             System.out.println();
         }
 
         System.out.println("\n===================================================================================================================================================================\n\n");
     }
 
-    private static void runAlgorithms(int t) {
+    private static void runAlgorithms(int graphNumber) {
         Algorithm ssp = new SuccessiveShortestPaths();
         Algorithm cs = new CapacityScaling();
         Algorithm sspcs = new SuccessiveShortestPathsSC();
@@ -118,17 +120,17 @@ public class Simulations2 {
         System.out.println("------------------------------------------------------------------------------------------------------------");
         for (int i = 1; i <= 4; i ++) {
             double k = 0.95;
-            AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
-            AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
-            AlgoResult sspcsResult = sspcs.findMinCostFlowAndTotalCost(String.valueOf(i), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
-            AlgoResult pdResult = pd.primalDualDriver("graph" + i + ".txt", sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
-            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "SSP", i, sspResult.totalFlow, sspResult.minimumCost, sspResult.numberOfPaths, String.format("%.3f", sspResult.meanLength), String.format("%.3f", sspResult.meanProportionalLength));
+            AlgoResult sspResult = ssp.findMinCostFlowAndTotalCost(String.valueOf(graphNumber + i - 1), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult csResult = cs.findMinCostFlowAndTotalCost(String.valueOf(graphNumber + i - 1), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult sspcsResult = sspcs.findMinCostFlowAndTotalCost(String.valueOf(graphNumber + i - 1), sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            AlgoResult pdResult = pd.primalDualDriver("graph" + (graphNumber + i - 1) + ".txt", sourceAndSink[i - 1][0], sourceAndSink[i - 1][1], (int) (k * fMaxValues[i - 1]));
+            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "SSP", (graphNumber + i - 1), sspResult.totalFlow, sspResult.minimumCost, sspResult.numberOfPaths, String.format("%.3f", sspResult.meanLength), String.format("%.3f", sspResult.meanProportionalLength));
             System.out.println();
-            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "CS", i, csResult.totalFlow, csResult.minimumCost, csResult.numberOfPaths, String.format("%.3f", csResult.meanLength), String.format("%.3f", csResult.meanProportionalLength));
+            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "CS", (graphNumber + i - 1), csResult.totalFlow, csResult.minimumCost, csResult.numberOfPaths, String.format("%.3f", csResult.meanLength), String.format("%.3f", csResult.meanProportionalLength));
             System.out.println();
-            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "SSPCS", i, sspcsResult.totalFlow, sspcsResult.minimumCost, sspcsResult.numberOfPaths, String.format("%.3f", sspcsResult.meanLength), String.format("%.3f", sspcsResult.meanProportionalLength));
+            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "SSPCS", (graphNumber + i - 1), sspcsResult.totalFlow, sspcsResult.minimumCost, sspcsResult.numberOfPaths, String.format("%.3f", sspcsResult.meanLength), String.format("%.3f", sspcsResult.meanProportionalLength));
             System.out.println();
-            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "PD", i, pdResult.totalFlow, pdResult.minimumCost, pdResult.numberOfPaths, String.format("%.3f", pdResult.meanLength), String.format("%.3f", pdResult.meanProportionalLength));
+            System.out.format("%10s%16s%16s%16s%16s%16s%16s", "PD", (graphNumber + i - 1), pdResult.totalFlow, pdResult.minimumCost, pdResult.numberOfPaths, String.format("%.3f", pdResult.meanLength), String.format("%.3f", pdResult.meanProportionalLength));
             System.out.println();
             System.out.println("------------------------------------------------------------------------------------------------------------");        }
     }

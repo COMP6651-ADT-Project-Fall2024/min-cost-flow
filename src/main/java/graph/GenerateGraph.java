@@ -83,7 +83,11 @@ public class GenerateGraph {
         }
     }
 
-    public static void resetGraphNumber() {
-        graphNumber = 1;
+    public static int getGraphNumber() {
+        return graphNumber;
+    }
+
+    public static void setGraphNumber(int n) {
+        graphNumber = n;
     }
 }
